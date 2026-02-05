@@ -93,8 +93,7 @@ def get_transcript_text(video_id):
             transcript = transcript_list.find_transcript(['en']).fetch()
         except:
             # Fall back to any available language
-            available_langs = (list(transcript_list._manually_created_transcripts.keys()) +
-                             list(transcript_list._generated_transcripts.keys()))
+            available_langs = (list(transcript_list._manually_created_transcripts.keys()) + list(transcript_list._generated_transcripts.keys()))
             if available_langs:
                 transcript = transcript_list.find_transcript([available_langs[0]]).fetch()
             else:
@@ -116,7 +115,7 @@ def summarize_with_ai(text, video_title):
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
 
-    with open('prompt.txt', 'r') as f:
+    with open('prompt.txt', 'r', encoding='utf-8') as f:
         prompt_template = f.read()
     prompt = prompt_template.format(video_title=video_title, transcript=text)
 

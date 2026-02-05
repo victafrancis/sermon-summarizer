@@ -28,7 +28,7 @@ if __name__ == "__main__":
         print(f"   Success! Transcript length: {len(transcript)} characters.")
         
         # Save transcript to file
-        with open('transcript.txt', 'w') as f:
+        with open('transcript.txt', 'w', encoding='utf-8') as f:
             f.write(transcript)
         
         # 2. Summarize
@@ -39,7 +39,7 @@ if __name__ == "__main__":
             print("Summary Generation Complete")
             
             # Save summary to file
-            with open('summary.txt', 'w') as f:
+            with open('summary.txt', 'w', encoding='utf-8') as f:
                 f.write(summary)
         else:
             print("❌ Error: AI summarization failed.")
