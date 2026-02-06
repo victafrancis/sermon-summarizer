@@ -286,15 +286,29 @@ def lambda_handler(event, context):
         summary_html = clean_html_output(summary_html)
 
         # 6. Send Email
-        email_body = f"<h2>{episode['title']}</h2><p><a href='{episode['link']}'>Listen to Episode</a></p><hr>{summary_html}"
-        ses.send_email(
-            Source=SENDER_EMAIL,
-            Destination={'ToAddresses': recipients},
-            Message={
-                'Subject': {'Data': f"Sermon Summary: {episode['title']}"},
-                'Body': {'Html': {'Data': email_body}}
-            }
+        email_body = (
+            "<div style=\"font-size: 18px; line-height: 1.6; font-family: Arial, sans-serif;\">"
+            f"<h2 style=\"font-size: 26px; margin: 0 0 12px;\">{episode['title']}</h2>"
+            f"<p style=\"margin: 0 0 16px;\"><a href='{episode['link']}' style=\"font-size: 18px;\">Listen to Episode</a></p>"
+            "<hr style=\"margin: 16px 0;\">"
+            f"{summary_html}"
+            "</div>"
         )
+        print(f"Sending email via SES to: {recipients} | From: {SENDER_EMAIL}")
+        try:
+            response = ses.send_email(
+                Source=SENDER_EMAIL,
+                Destination={'ToAddresses': recipients},
+                Message={
+                    'Subject': {'Data': f"CCF Sunday Sermon Summary: {episode['title']}"},
+                    'Body': {'Html': {'Data': email_body}}
+                }
+            )
+            message_id = response.get('MessageId') if isinstance(response, dict) else None
+            print(f"SES send_email succeeded. MessageId: {message_id}")
+        except Exception as e:
+            print(f"SES send_email failed: {e}")
+            raise
 
         # 7. Save to DB
         table.put_item(Item={
