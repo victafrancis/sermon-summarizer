@@ -110,6 +110,44 @@ cd package && python -m zipfile -c ../deployment.zip .
 cd ..
 ```
 
+### Packaging (Windows + Docker, Python 3.13)
+Use this if you build on Windows but deploy to AWS Lambda (Linux). These commands create Linux-compatible wheels inside a Docker container that matches the Lambda runtime.
+
+**Step 0 — Start Docker Desktop**
+- Open Docker Desktop and wait until it shows **Running**.
+
+**Step 1 — Build (install deps + copy code)**
+
+Command Prompt (CMD):
+```bat
+docker run --rm -v "%cd%":/var/task --entrypoint /bin/bash public.ecr.aws/lambda/python:3.13 ^
+  -c "pip install -r requirements.txt -t package && cp lambda_function.py prompt.txt package/"
+```
+
+PowerShell:
+```powershell
+docker run --rm -v ${PWD}:/var/task --entrypoint /bin/bash public.ecr.aws/lambda/python:3.13 `
+  -c "pip install -r requirements.txt -t package && cp lambda_function.py prompt.txt package/"
+```
+
+**Step 2 — Zip**
+
+Command Prompt (CMD):
+```bat
+docker run --rm -v "%cd%":/var/task --entrypoint /bin/bash public.ecr.aws/lambda/python:3.13 ^
+  -c "cd package && python -m zipfile -c /var/task/deployment.zip ."
+```
+
+PowerShell:
+```powershell
+docker run --rm -v ${PWD}:/var/task --entrypoint /bin/bash public.ecr.aws/lambda/python:3.13 `
+  -c "cd package && python -m zipfile -c /var/task/deployment.zip ."
+```
+
+**Notes**
+- The container starts and stops automatically for each command. You do **not** keep it running.
+- If only code changes (no dependency changes), you can skip Step 1 and run only Step 2.
+
 ### Deploy (AWS CLI)
 ```bash
 aws lambda update-function-code \
